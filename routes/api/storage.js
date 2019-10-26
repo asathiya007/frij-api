@@ -79,6 +79,55 @@ router.post("/",
     }
 );
 
+// @route   POST api/storage/bulk
+// @desc    add items to storage, create storage if one does not exist
+// @access  private
+router.post("/bulk/:multiplicity", 
+    [
+        tokenauth,
+        check("name", "please provide a name").not().isEmpty(),
+        check("expDate", "please provide an expiration date").isISO8601(),
+        check("price", "please provide a valid price").isCurrency()
+    ],
+    async (req, res) => {
+        // check for errors 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const {multiplicity} = req.params; 
+
+        try {
+            // obtain organization of user 
+            const user = await User.findById(req.user.id);
+            const organization = user.organization;
+
+            // get the storage associated with that organization 
+            let storage = await Storage.findOne({ organization });
+
+            // check no storage exists, create storage 
+            if (!storage) {
+                storage = new Storage({
+                    organization,
+                    inventory: []
+                });
+            }
+
+            // add the item into storage *multiplicity* times
+            for (let i = 0; i < multiplicity; i++) { 
+                storage.inventory.push(req.body);
+            }
+
+            await storage.save();
+            res.json(storage);
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ errors: [{ msg: "server error" }] });
+        }
+    }
+);
+
 // @route   DELETE api/storage/items/:id
 // @desc    delete an item from storage
 // @access  private
