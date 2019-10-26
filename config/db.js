@@ -5,12 +5,13 @@ const connectDB = async () => {
     try {
         await mongoose.connect(config.get("mongoURI"), {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            useCreateIndex: true
         });
         console.log("mongoDB connected");
     } catch (err) {
         console.error(err.message);
-        res.status(500).json("server error");
+        process.exit(1); // exit with error 
     }
 };
 

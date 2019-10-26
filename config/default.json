@@ -1,3 +1,4 @@
 {
-    "mongoURI": "mongodb+srv://akshay123:akshay123@frij-cjqkj.gcp.mongodb.net/test"
+    "mongoURI": "mongodb+srv://akshay123:akshay123@frij-cjqkj.gcp.mongodb.net/test",
+    "tokenSecret": "frij"
 }
