@@ -8,7 +8,7 @@ const router = express.Router();
 // @route   GET api/storage/test
 // @desc    test storage route
 // @access  public
-router.get("/test", (req, res) => res.json("storage route"));
+router.get("/test", (req, res) => res.json({msg: "storage route"}));
 
 // @route   GET api/storage
 // @desc    get current storage of items
@@ -24,13 +24,13 @@ router.get("/", tokenauth, async (req, res) => {
 
         // check if storage exists 
         if (!storage) {
-            return res.json("no storage exists for this user's organization");
+            return res.json({msg: "no storage exists for this user's organization"});
         }
 
         res.json(storage);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json("server error");
+        res.status(500).json({msg: "server error"});
     }
 });
 
@@ -74,7 +74,7 @@ router.post("/",
             res.json(storage);
         } catch (err) {
             console.error(err.message);
-            res.status(500).json("server error");
+            res.status(500).json({msg: "server error"});
         }
     }
 );
@@ -87,7 +87,7 @@ router.delete("/items/:id", tokenauth, async (req, res) => {
     const {id} = req.params;
 
     if (!id) {
-        return res.status(400).json("no food id provided");
+        return res.status(400).json({msg: "no food id provided"});
     }
 
     try {
@@ -100,7 +100,7 @@ router.delete("/items/:id", tokenauth, async (req, res) => {
 
         // check if no storage 
         if (!storage) {
-            return res.json("no storage exists for this user's organization");
+            return res.json({msg: "no storage exists for this user's organization"});
         }
 
         // remove item from storage 
@@ -116,7 +116,7 @@ router.delete("/items/:id", tokenauth, async (req, res) => {
         res.json(storage);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json("server error");
+        res.status(500).json({msg: "server error"});
     }
 });
 
@@ -150,7 +150,7 @@ router.delete("/allitems",
 
             // check if the storage does not exist
             if (!storage) {
-                return res.json("no storage exists for this user's organization");
+                return res.json({msg: "no storage exists for this user's organization"});
             }
 
             // remove the specified foods from inventory 
@@ -167,7 +167,7 @@ router.delete("/allitems",
             res.json(storage);
         } catch (err) {
             console.error(err.message);
-            res.status(500).json("server error");
+            res.status(500).json({msg: "server error"});
         }
     }
 );
@@ -184,10 +184,10 @@ router.delete("/storage", tokenauth, async (req, res) => {
         // delete the storage associated with that organization
         await Storage.findOneAndDelete({ organization });
 
-        res.json("deleted storage");
+        res.json({msg: "deleted storage"});
     } catch (err) {
         console.error(err.message);
-        res.status(500).json("server error");
+        res.status(500).json({msg: "server error"});
     }
 });
 
@@ -220,7 +220,7 @@ router.put("/remove_expired", tokenauth, async (req, res) => {
 
         // check if the storage does not exist
         if (!storage) {
-            return res.json("no storage exists for this user's organization");
+            return res.json({msg: "no storage exists for this user's organization"});
         }
 
         // remove the specified foods from inventory 
@@ -240,14 +240,13 @@ router.put("/remove_expired", tokenauth, async (req, res) => {
         // calculate cost of expired items
         let expiredCost = 0; 
         for (item of expired) {
-            console.log(item.price);
             expiredCost += item.price; 
         }
 
         res.json({ expired, expiredCost });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json("server error");
+        res.status(500).json({msg: "server error"});
     }
 });
 
@@ -277,7 +276,7 @@ router.get("/predict_expired/:days", tokenauth, async (req, res) => {
 
     // check if the storage does not exist
     if (!storage) {
-        return res.json("no storage exists for this user's organization");
+        return res.json({msg: "no storage exists for this user's organization"});
     }
 
     // remove the specified foods from inventory 

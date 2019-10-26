@@ -10,7 +10,7 @@ const router = express.Router();
 // @route   GET api/auth/test
 // @desc    test auth route
 // @access  public
-router.get("/test", (req, res) => res.json("auth route"));
+router.get("/test", (req, res) => res.json({msg: "auth route"}));
 
 // @route   POST api/auth
 // @desc    user login route
@@ -35,13 +35,13 @@ router.post("/",
 
             // check if user does not exist 
             if (!user) {
-                return res.status(400).json("invalid credentials");
+                return res.status(400).json({msg: "invalid credentials"});
             }
 
             // verify credentials 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(400).json("invalid credentials");
+                return res.status(400).json({msg: "invalid credentials"});
             }
 
             // create token 
@@ -61,7 +61,7 @@ router.post("/",
             ); 
         } catch (err) {
             console.error(err.message);
-            res.status(500).json("server error");
+            res.status(500).json({msg: "server error"});
         }
     }
 );
