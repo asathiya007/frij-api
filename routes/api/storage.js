@@ -24,7 +24,7 @@ router.get("/", tokenauth, async (req, res) => {
 
         // check if storage exists 
         if (!storage) {
-            return res.json("no storage exists for this organization");
+            return res.json("no storage exists for this user's organization");
         }
 
         res.json(storage);
@@ -100,7 +100,7 @@ router.delete("/items/:id", tokenauth, async (req, res) => {
 
         // check if no storage 
         if (!storage) {
-            return res.status(400).json("no storage associated with user");
+            return res.json("no storage exists for this user's organization");
         }
 
         // remove item from storage 
@@ -149,8 +149,8 @@ router.delete("/allitems",
             let storage = await Storage.findOne({ organization });
 
             // check if the storage doesn't have inventory
-            if (!storage.inventory) {
-                return res.status(400).json("storage has no inventory");
+            if (!storage) {
+                return res.json("no storage exists for this user's organization");
             }
 
             // remove the specified foods from inventory 
@@ -172,4 +172,24 @@ router.delete("/allitems",
     }
 );
 
+// @route   DELETE api/storage/storage
+// @desc    delete the storage itself 
+// @access  private
+router.delete("/storage", tokenauth, async (req, res) => {
+    try {
+        // obtain organization of user 
+        const user = await User.findById(req.user.id);
+        const organization = user.organization;
+
+        // delete the storage associated with that organization
+        await Storage.findOneAndDelete({ organization });
+
+        res.json("deleted storage");
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json("server error");
+    }
+});
+
 module.exports = router; 
+
