@@ -12,7 +12,7 @@ const router = express.Router();
 // @route   GET api/users/test
 // @desc    test users route
 // @access  public
-router.get("/test", (req, res) => res.json({errors: [{msg: "users route"}]})); 
+router.get("/test", (req, res) => res.json({msg: "users route"})); 
 
 // @route   GET api/users/
 // @desc    get user data

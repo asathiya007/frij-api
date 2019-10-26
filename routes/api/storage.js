@@ -8,7 +8,7 @@ const router = express.Router();
 // @route   GET api/storage/test
 // @desc    test storage route
 // @access  public
-router.get("/test", (req, res) => res.json({errors: [{msg: "storage route"}]}));
+router.get("/test", (req, res) => res.json({msg: "storage route"}));
 
 // @route   GET api/storage
 // @desc    get current storage of items

@@ -10,7 +10,7 @@ const router = express.Router();
 // @route   GET api/auth/test
 // @desc    test auth route
 // @access  public
-router.get("/test", (req, res) => res.json({errors: [{msg: "auth route"}]}));
+router.get("/test", (req, res) => res.json({msg: "auth route"}));
 
 // @route   POST api/auth
 // @desc    user login route
