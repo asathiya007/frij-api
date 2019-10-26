@@ -44,7 +44,7 @@ router.post("/",
             return res.status(400).json({errors: errors.array()});
         }
 
-        const {name, email, password} = req.body; 
+        const {name, email, password, organization} = req.body; 
 
         try {
             // check if user already exist 
@@ -64,7 +64,8 @@ router.post("/",
             user = new User({
                 name,
                 email,
-                password, 
+                password,
+                organization, 
                 avatar
             });
 
