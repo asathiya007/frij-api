@@ -1,0 +1,11 @@
+{
+  "name": "frij-api",
+  "version": "1.0.0",
+  "description": "the backend code for Frij (HackGT 6 - 2019)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Akshay Sathiya",
+  "license": "MIT"
+}
