@@ -79,7 +79,7 @@ router.post("/",
     }
 );
 
-// @route   POST api/storage/bulk
+// @route   POST api/storage/bulk/:multiplicity
 // @desc    add items to storage, create storage if one does not exist
 // @access  private
 router.post("/bulk/:multiplicity", 
