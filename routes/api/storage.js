@@ -191,22 +191,24 @@ router.delete("/storage", tokenauth, async (req, res) => {
     }
 });
 
-// @route   GET api/storage/remove_expired
+// to get today's date
+const curdate = () => {
+    const today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1;
+    var yyyy = today.getFullYear();
+
+    if (dd < 10) dd = '0' + dd;
+    if (mm < 10) mm = '0' + mm;
+    return (yyyy + "-" + mm + "-" + dd);
+};
+
+// @route   PUT api/storage/remove_expired
 // @desc    obtain the monetary value of the foods that expired today 
 // @access  private
 router.put("/remove_expired", tokenauth, async (req, res) => {
     try {
         // get today's date
-        const curdate = () => {
-            const today = new Date();
-            var dd = today.getDate();
-            var mm = today.getMonth() + 1;
-            var yyyy = today.getFullYear();
-
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
-            return (yyyy + "-" + mm + "-" + dd);
-        };
         const today = new Date(curdate());
 
         // obtain organization of user 
@@ -225,7 +227,7 @@ router.put("/remove_expired", tokenauth, async (req, res) => {
         const expired = [];
         const inventory = [];
         for (item of storage.inventory) {
-            if (item.expDate.toString().slice(0, 10) === today.toString().slice(0, 10)) {
+            if (new Date(item.expDate.toString().slice(0, 10)) <= new Date(today.toString().slice(0, 10))) {
                 expired.push(item);
             } else {
                 inventory.push(item);
@@ -234,7 +236,8 @@ router.put("/remove_expired", tokenauth, async (req, res) => {
         storage.inventory = inventory; 
 
         await storage.save();
-
+    
+        // calculate cost of expired items
         let expiredCost = 0; 
         for (item of expired) {
             console.log(item.price);
@@ -246,6 +249,55 @@ router.put("/remove_expired", tokenauth, async (req, res) => {
         console.error(err.message);
         res.status(500).json("server error");
     }
+});
+
+// to add days to a date
+const addDays = (date, days) => {
+    const ms = new Date(date).getTime() + 86400000 * days;
+    return new Date(ms);
+}
+
+// @route   GET api/storage/predict_expired/:days
+// @desc    obtain the monetary value of the foods that will expire
+// @access  private
+router.get("/predict_expired/:days", tokenauth, async (req, res) => {
+    // get today's date, the number of days to add, and future day
+    const today = new Date(curdate());
+    const days = req.params.days; 
+
+    // calculate future date
+    const futureDate = addDays(today, days);
+    
+    // obtain organization of user 
+    const user = await User.findById(req.user.id);
+    const organization = user.organization;
+
+    // get the storage associated with that organization 
+    let storage = await Storage.findOne({ organization });
+
+    // check if the storage does not exist
+    if (!storage) {
+        return res.json("no storage exists for this user's organization");
+    }
+
+    // remove the specified foods from inventory 
+    const willExpire = [];
+    for (item of storage.inventory) {
+        if (new Date(item.expDate.toString().slice(0, 10)) 
+            <= new Date(futureDate.toString().slice(0, 10))) {
+            willExpire.push(item);
+        }
+    }
+
+    await storage.save();
+
+    // calculate cost of expired items
+    let expiredCost = 0;
+    for (item of willExpire) {
+        expiredCost += item.price;
+    }
+
+    res.json({willExpire, expiredCost});
 });
 
 module.exports = router; 
