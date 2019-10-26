@@ -9,7 +9,7 @@ connectDB();
 // @route   GET /test
 // @desc    test api started
 // @access  public
-app.get("/test", (req, res) => res.json({msg: "api started"}));
+app.get("/test", (req, res) => res.json({errors: [{msg: "api started"}]}));
 
 // external routes
 app.use("/api/users", require("./routes/api/users"));
