@@ -35,7 +35,8 @@ router.post("/",
         check("name", "please provide a name").not().isEmpty(),
         check("email", "please provide valid email").isEmail(),
         check("password", "passwords must be at least 6 characters long")
-            .isLength({min: 6})
+            .isLength({min: 6}),
+        check("organization", "please provide an organization").not().isEmpty()
     ],
     async (req, res) => {
         // check for errors 

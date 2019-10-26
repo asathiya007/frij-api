@@ -148,7 +148,7 @@ router.delete("/allitems",
             // get the storage associated with that organization 
             let storage = await Storage.findOne({ organization });
 
-            // check if the storage doesn't have inventory
+            // check if the storage does not exist
             if (!storage) {
                 return res.json("no storage exists for this user's organization");
             }
@@ -185,6 +185,63 @@ router.delete("/storage", tokenauth, async (req, res) => {
         await Storage.findOneAndDelete({ organization });
 
         res.json("deleted storage");
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json("server error");
+    }
+});
+
+// @route   GET api/storage/remove_expired
+// @desc    obtain the monetary value of the foods that expired today 
+// @access  private
+router.put("/remove_expired", tokenauth, async (req, res) => {
+    try {
+        // get today's date
+        const curdate = () => {
+            const today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+            return (yyyy + "-" + mm + "-" + dd);
+        };
+        const today = new Date(curdate());
+
+        // obtain organization of user 
+        const user = await User.findById(req.user.id);
+        const organization = user.organization;
+
+        // get the storage associated with that organization 
+        let storage = await Storage.findOne({ organization });
+
+        // check if the storage does not exist
+        if (!storage) {
+            return res.json("no storage exists for this user's organization");
+        }
+
+        // remove the specified foods from inventory 
+        const expired = [];
+        const inventory = [];
+        for (item of storage.inventory) {
+            if (item.expDate.toString().slice(0, 10) === today.toString().slice(0, 10)) {
+                expired.push(item);
+            } else {
+                inventory.push(item);
+            }
+        }
+        storage.inventory = inventory; 
+
+        await storage.save();
+
+        let expiredCost = 0; 
+        for (item of expired) {
+            console.log(item.price);
+            expiredCost += item.price; 
+        }
+
+        res.json({ expired, expiredCost });
     } catch (err) {
         console.error(err.message);
         res.status(500).json("server error");
