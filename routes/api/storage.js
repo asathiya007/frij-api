@@ -332,7 +332,8 @@ router.get("/predict_expired/:days", tokenauth, async (req, res) => {
     const willExpire = [];
     for (item of storage.inventory) {
         if (new Date(item.expDate.toString().slice(0, 10)) 
-            <= new Date(futureDate.toString().slice(0, 10))) {
+            <= new Date(futureDate.toString().slice(0, 10)) &&
+            new Date(item.expDate.toString().slice(0, 10)) !== new Date()) {
             willExpire.push(item);
         }
     }
